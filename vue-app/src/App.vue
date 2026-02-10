@@ -32,7 +32,10 @@
           <span v-text="task.title"></span>
 
           <!-- dropbox for user to change progress state. hidden on blocked -->
-          <select v-model="task.status" :hidden="task.status === 'blocked'">
+          <select 
+          v-model="task.status" 
+          :disabled="task.status === 'blocked'"
+          @change="onStatusChange($event, task)">
             <option value="todo">To-do</option>
             <option value="in_progress">In-progress</option>
             <option value="done">Done</option>
@@ -52,10 +55,10 @@
 </template>
 
 <script setup lang="ts">
-// This file defines the Task interface and TaskStatus type used in the application.
+import { reactive } from 'vue' //reflects changes across the object 'Tasks'.
 
 // task statuses
-export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked';
+export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
 // 'todo' - task is not started yet
 // 'in_progress' - task is currently being worked on
 // 'done' - task is completed
@@ -69,15 +72,49 @@ export type Task = {
     'status': TaskStatus,
     //'created_at': Date, 
     //'updated_at': Date,
-    'dependents': String[] // array of task ids that depend on this task
+    'dependencies': String[] // array of tasks this task depends on. If any of the dependencies are not done, this task is blocked.
 }
 
-const tasks: Task[] = [
-  { id: '1', title: 'Task A', status: 'todo', dependents: [] },
-  { id: '2', title: 'Task B', status: 'blocked', dependents: ['1'] },
-  { id: '3', title: 'Task C', status: 'in_progress', dependents: [] },
-  { id: '4', title: 'Task D', status: 'done', dependents: ['1'] },
-];
+const tasks = reactive<Task[]> ([
+  { id: '1', title: 'Task A', status: 'blocked', dependencies: ['2', '3', '4'] },
+  { id: '2', title: 'Task B', status: 'blocked', dependencies: ['3', '4'] },
+  { id: '3', title: 'Task C', status: 'blocked', dependencies: ['4'] },
+  { id: '4', title: 'Task D', status: 'todo', dependencies: [] },
+]);
+
+//Aligns with req 3. Automates the state changes of a task across the system.
+function onStatusChange(event: Event, task: Task): void {
+  const taskStatus = (event.target as HTMLSelectElement).value as TaskStatus //the value is captured
+  task.status = taskStatus; //the status is changed
+
+  //On 'done', we...
+  if(taskStatus == 'done'){
+
+    //scan for any tasks in the tasks array...
+    for(const dependentTask of tasks){
+      if(dependentTask.dependencies.includes(task.id)){ //with a dependency to this task (relies on updated tasks)
+        const allDepsDone = dependentTask.dependencies.every(depId => { //checks to see if all dependent tasks are done to mark it as 'to-do'
+          const depTask = tasks.find(task => task.id === depId); 
+          return depTask?.status === 'done'; 
+        });
+        dependentTask.status = allDepsDone ? 'todo' : 'blocked'; //true? 'to-do', false? 'blocked'
+      }
+    }
+  }
+
+  //scans for any tasks in the tasks array with a dependency to this task, if the new status is not 'done', mark it all dependents as 'blocked'.
+  if(taskStatus != 'done'){
+    for(const dependentTask of tasks){
+      if(dependentTask.dependencies.includes(task.id)){
+        dependentTask.status = 'blocked'
+      }
+    }
+  }
+
+  // TODO, update the backend with the new status
+  // TODO, update the frontend with the new status
+}
+
 
 /*
 function recursiveRead(task: Task): void {

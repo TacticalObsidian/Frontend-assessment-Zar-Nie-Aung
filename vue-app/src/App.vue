@@ -24,9 +24,9 @@
         <li class="task-item" v-for="(task, index) in tasks"
           :key="task.id"
           :class="index % 2 === 0 ? 'even' : 'odd'">
-          <span v-for="item in task" v-text="item"></span>
-          <!-- <span v-text="task.title"></span>
-          <span v-text="task.status"></span> -->
+          <!-- <span v-for="item in task" v-text="item"></span> -->
+          <span v-text="task.title"></span>
+          <span v-text="task.status"></span>
         </li>
       </ul>
     </div>

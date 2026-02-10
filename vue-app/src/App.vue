@@ -10,12 +10,14 @@
     </div>
 
   <!-- Filter bar -->
-    <div>
+    <div class="filter-panel">
       <span> Filter: </span>
-      <span id="filter-blocked" @click="filterBlocked"> Blocked </span>
-      <span id="filter-todo"> Todo </span>
-      <span id="filter-in_progress"> In Progress </span>
-      <span id="filter-done"> Done </span>
+      <span class="filter-option-wrapper">
+        <span id="filter-blocked" @click="filterBlocked"> Blocked </span>
+        <span id="filter-todo"> Todo </span>
+        <span id="filter-in_progress"> In Progress </span>
+        <span id="filter-done"> Done </span>
+      </span>
     </div>
 
     <div>
@@ -25,8 +27,23 @@
           :key="task.id"
           :class="index % 2 === 0 ? 'even' : 'odd'">
           <!-- <span v-for="item in task" v-text="item"></span> -->
+
+          <span>
           <span v-text="task.title"></span>
-          <span v-text="task.status"></span>
+
+          <!-- dropbox for user to change progress state. hidden on blocked -->
+          <select v-model="task.status" :hidden="task.status === 'blocked'">
+            <option value="todo">To-do</option>
+            <option value="in_progress">In-progress</option>
+            <option value="done">Done</option>
+          </select>
+
+          <!-- Condition to remove the dropbox on task.status === 'blocked' -->
+          <span v-if="task.status === 'blocked'"> Blocked </span>
+          </span>
+          
+          <!-- TODO, add a kanban style dialog popup for edit -->
+          <span> More </span>
         </li>
       </ul>
     </div>
@@ -87,6 +104,8 @@ function filterBlocked(): void{}
 
   .task-item{
     padding:5px 0px 5px 0px;
+    display: flex;
+    justify-content: space-between;
   }
 
   .task-item span {
@@ -107,12 +126,44 @@ function filterBlocked(): void{}
     color: rgb(250, 250, 200);
   }
 
-  #filter-blocked {
+  .filter-panel{
+    padding: 15px;
+    background-color: rgb(0, 0, 0, 5%);
+  }
+
+  .filter-option-wrapper{
+    display: flex;
+    gap: 10px;
+  }
+
+  .filter-option-wrapper span{
     padding: 2.5px 5px;
-    background-image: linear-gradient(red, rgb(100, 0, 0));
-    color: white;
+    width: 80px;
+    height: 20px;
     font-weight: 700;
     border-radius: 5px;
+    display: flex;
+    justify-content: center;
+  }
+
+  #filter-blocked {
+    background-image: linear-gradient(red, rgb(100, 0, 0));
+    color: white;
+  }
+
+  #filter-todo {
+    background-image: linear-gradient(rgb(0, 123, 255), rgb(0, 83, 125));
+    color: white;
+  }
+
+  #filter-in_progress {
+    background-image: linear-gradient(rgb(123, 0, 255), rgb(83, 0, 125));
+    color: white;
+  }
+
+  #filter-done {
+    background-image: linear-gradient(rgb(0, 255, 0), rgb(0, 100, 0));
+    color: white;
   }
 
 </style>

@@ -34,7 +34,8 @@
           <!-- dropbox for user to change progress state. hidden on blocked -->
           <select
             v-model = task.state
-            @change="updateTaskStatus(task.id, $event)"
+            @change="updateTaskStatus(task)"
+            :disabled="task.state === 'BLOCKED'"
             >
             <option value="TODO">To-do</option>
             <option value="IN_PROGRESS">In-progress</option>
@@ -107,13 +108,14 @@ async function createTask(newTask: Task2): Promise<void> {
 }
 
 // POST (edit) task status
-async function updateTaskStatus(taskID: number, taskState: Event): Promise<void> {
-  const stringifiedTaskStatus : string = (taskState.target as HTMLSelectElement).value
-  await fetch(`http://localhost:8000/tasks/${taskID}/state/${stringifiedTaskStatus}`, 
+async function updateTaskStatus(task: Task2): Promise<void> {
+  // const stringifiedTaskStatus : string = (taskState.target as HTMLSelectElement).value
+  await fetch(`http://localhost:8000/tasks/${task.id}/state/${task.state}`, 
   {
     method: 'POST'
   }
   ) 
+  fetchTasks() //refresh the tasks list to reflect the updated status
 }
 
 const tasksAPI = reactive<Task2[]>([])

@@ -120,40 +120,6 @@ async function updateTaskStatus(task: Task2): Promise<void> {
 
 const tasksAPI = reactive<Task2[]>([])
 
-// //Aligns with req 3. Automates the state changes of a task across the system.
-// function onStatusChange(event: Event, task: Task): void {
-//   const taskStatus = (event.target as HTMLSelectElement).value as TaskStatus //the value is captured
-//   task.status = taskStatus; //the status is changed
-
-//   //On 'done', we...
-//   if(taskStatus == 'done'){
-
-//     //scan for any tasks in the tasks array...
-//     for(const dependentTask of tasks){
-//       if(dependentTask.dependencies.includes(task.id)){ //with a dependency to this task (relies on updated tasks)
-//         const allDepsDone = dependentTask.dependencies.every(depId => { //checks to see if all dependent tasks are done to mark it as 'to-do'
-//           const depTask = tasks.find(task => task.id === depId); 
-//           return depTask?.status === 'done'; 
-//         });
-//         dependentTask.status = allDepsDone ? 'todo' : 'blocked'; //true? 'to-do', false? 'blocked'
-//       }
-//     }
-//   }
-
-//   //scans for any tasks in the tasks array with a dependency to this task, if the new status is not 'done', mark it all dependents as 'blocked'.
-//   if(taskStatus != 'done'){
-//     for(const dependentTask of tasks){
-//       if(dependentTask.dependencies.includes(task.id)){
-//         dependentTask.status = 'blocked'
-//       }
-//     }
-//   }
-
-//   // TODO, update the backend with the new status
-//   // TODO, update the frontend with the new status
-// }
-
-
 //Mounting, following best practice learnt from internship
 onMounted(() => {
   fetchTasks()

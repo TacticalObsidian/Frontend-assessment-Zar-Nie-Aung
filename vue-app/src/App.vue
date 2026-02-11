@@ -10,18 +10,35 @@
     </div>
 
   <!-- Filter bar -->
-    <div class="filter-panel">
-      <span> Filter: </span>
-      <span class="filter-option-wrapper">
-        <button id="filter-blocked" @click="filterTasks('BLOCKED')"> Blocked </button>
-        <button id="filter-todo" @click="filterTasks('TODO')"> Todo </button>
-        <button id="filter-in_progress" @click="filterTasks('IN_PROGRESS')"> In Progress </button>
-        <button id="filter-done" @click="filterTasks('DONE')"> Done </button>
+  
+  <!-- Action Bar -->
+   <div class="action-panel">
+      <span> 
+        <div>
+          <h3>
+            Tasks
+          </h3>
+        </div>
+        <div>
+          {{ tasksAPI.length }} Tasks
+        </div>
       </span>
-    </div>
+      <!-- Action Options -->
+      <!-- Create and Filter -->
+      <span> 
+        <button> Create Task </button>
+        <select v-model="selectedFilter" @change="filterTasks(selectedFilter)"> Filter
+          <option value="" @click="filterTasks(null)"> Remove Filter </option>
+          <option value="BLOCKED" @click="filterTasks('BLOCKED')"> Blocked </option>
+          <option value="TODO" @click="filterTasks('TODO')"> Todo </option>
+          <option value="IN_PROGRESS" @click="filterTasks('IN_PROGRESS')"> In Progress </option>
+          <option value="DONE" @click="filterTasks('DONE')"> Done </option>
+        </select> 
+      </span>
+   </div>
 
+        <!-- Task List -->
     <div>
-      <!-- Task List -->
       <ul class="task-list">
         <li class="task-item" v-for="(task, index) in filteredTasks"
           :key="task.id"
@@ -29,7 +46,7 @@
           <!-- <span v-for="item in task" v-text="item"></span> -->
 
           <span>
-          <span v-text="task.title"></span>
+          <span v-text="task.title" class="task-title"></span>
 
           <!-- dropbox for user to change progress state. hidden on blocked -->
           <select
@@ -90,7 +107,7 @@ const filteredTasks = computed(() => {
   return tasksAPI.filter(task => task.state === selectedFilter.value)
 })
 
-async function filterTasks(filter: string): Promise<void> {
+async function filterTasks(filter: string | null) : Promise<void> {
   selectedFilter.value = filter
 }
 
@@ -141,8 +158,21 @@ onMounted(() => {
     justify-content: space-between;
   }
 
+  .task-item:hover{
+    background-color: rgb(255, 255, 255);
+    transform: scale(1.005);
+    border: black solid 1px;
+    border-radius: 5px;
+    transition: all 0.25s ease-in;
+  }
+
   .task-item span {
-    padding-right: 10px;
+    padding: 10px;
+  }
+
+  .task-title{
+    font-weight: 800;
+    width: 300px;
   }
 
   .even {

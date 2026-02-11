@@ -13,17 +13,17 @@
     <div class="filter-panel">
       <span> Filter: </span>
       <span class="filter-option-wrapper">
-        <span id="filter-blocked"> Blocked </span>
-        <span id="filter-todo"> Todo </span>
-        <span id="filter-in_progress"> In Progress </span>
-        <span id="filter-done"> Done </span>
+        <button id="filter-blocked" @click="filterTasks('BLOCKED')"> Blocked </button>
+        <button id="filter-todo" @click="filterTasks('TODO')"> Todo </button>
+        <button id="filter-in_progress" @click="filterTasks('IN_PROGRESS')"> In Progress </button>
+        <button id="filter-done" @click="filterTasks('DONE')"> Done </button>
       </span>
     </div>
 
     <div>
       <!-- Task List -->
       <ul class="task-list">
-        <li class="task-item" v-for="(task, index) in tasksAPI"
+        <li class="task-item" v-for="(task, index) in filteredTasks"
           :key="task.id"
           :class="index % 2 === 0 ? 'even' : 'odd'">
           <!-- <span v-for="item in task" v-text="item"></span> -->
@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue' //reflects changes across the object 'Tasks'.
+import { ref, computed, reactive, onMounted } from 'vue' //reflects changes across the object 'Tasks'.
 
 export type Task2 = {
   'title': string,
@@ -71,20 +71,44 @@ export type Task2 = {
 }
 
 // GET tasks from task list
-async function fetchTasks() {
+async function fetchTasks(): Promise<void> {
   try {
-    const response = await fetch('http://localhost:8000/tasks')
-    const data = await response.json()
-    tasksAPI.splice(0, tasksAPI.length, ...data) //replace the tasks array with the fetched data
+    const response : Response = await fetch('http://localhost:8000/tasks')
+    tasksAPI.splice(0, tasksAPI.length, ...await response.json()) //replace the tasks array with the fetched data
   }
   catch (error) {
     console.error('Error fetching tasks:', error);
   }
 }
 
+// FILTER the tasks from task list
+// For future documentation purposes:
+// Requires computed, ref, + a new referential list to store tasks and allowed for dynamic filtering.
+// Subject to resturcturing for better maintaianability and readability
+const selectedFilter = ref<string | null>(null)
+const filteredTasks = computed(() => {
+  if (!selectedFilter.value) return tasksAPI
+
+  return tasksAPI.filter(task => task.state === selectedFilter.value)
+})
+
+async function filterTasks(filter: string): Promise<void> {
+  selectedFilter.value = filter
+}
+
+// PUSH (create) a task to the task list
+async function createTask(newTask: Task2): Promise<void> {
+  try {
+
+  }
+  catch (error) {
+    console.error('Error creating task:', error);
+  }
+}
+
 // POST (edit) task status
-async function updateTaskStatus(taskID: number, taskState: Event){
-  const stringifiedTaskStatus = (taskState.target as HTMLSelectElement).value as string
+async function updateTaskStatus(taskID: number, taskState: Event): Promise<void> {
+  const stringifiedTaskStatus : string = (taskState.target as HTMLSelectElement).value
   await fetch(`http://localhost:8000/tasks/${taskID}/state/${stringifiedTaskStatus}`, 
   {
     method: 'POST'

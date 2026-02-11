@@ -57,23 +57,6 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue' //reflects changes across the object 'Tasks'.
 
-// fetch the tasks
-
-// task statuses
-export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
-
-
-// task body
-export type Task = {
-    'id': string,
-    'title': String,
-    //'description': String,
-    'status': TaskStatus,
-    //'created_at': Date, 
-    //'updated_at': Date,
-    'dependencies': String[] // array of tasks this task depends on. If any of the dependencies are not done, this task is blocked.
-}
-
 export type Task2 = {
   'title': string,
   'description': string,
@@ -99,11 +82,7 @@ async function fetchTasks() {
   }
 }
 
-onMounted(() => {
-  fetchTasks()
-})
-
-// PATCH (edit) task status
+// POST (edit) task status
 async function updateTaskStatus(taskID: number, taskState: Event){
   const stringifiedTaskStatus = (taskState.target as HTMLSelectElement).value as string
   await fetch(`http://localhost:8000/tasks/${taskID}/state/${stringifiedTaskStatus}`, 
@@ -113,51 +92,46 @@ async function updateTaskStatus(taskID: number, taskState: Event){
   ) 
 }
 
-// RECURSIVE PATCH (edit) dependent task status to blocked or todo
-
-// Filter GET Tasks by Task.State
-
 const tasksAPI = reactive<Task2[]>([])
 
-const tasks = reactive<Task[]> ([
-  { id: '1', title: 'Task A', status: 'blocked', dependencies: ['2', '3', '4'] },
-  { id: '2', title: 'Task B', status: 'blocked', dependencies: ['3', '4'] },
-  { id: '3', title: 'Task C', status: 'blocked', dependencies: ['4'] },
-  { id: '4', title: 'Task D', status: 'todo', dependencies: [] },
-]);
+// //Aligns with req 3. Automates the state changes of a task across the system.
+// function onStatusChange(event: Event, task: Task): void {
+//   const taskStatus = (event.target as HTMLSelectElement).value as TaskStatus //the value is captured
+//   task.status = taskStatus; //the status is changed
 
-//Aligns with req 3. Automates the state changes of a task across the system.
-function onStatusChange(event: Event, task: Task): void {
-  const taskStatus = (event.target as HTMLSelectElement).value as TaskStatus //the value is captured
-  task.status = taskStatus; //the status is changed
+//   //On 'done', we...
+//   if(taskStatus == 'done'){
 
-  //On 'done', we...
-  if(taskStatus == 'done'){
+//     //scan for any tasks in the tasks array...
+//     for(const dependentTask of tasks){
+//       if(dependentTask.dependencies.includes(task.id)){ //with a dependency to this task (relies on updated tasks)
+//         const allDepsDone = dependentTask.dependencies.every(depId => { //checks to see if all dependent tasks are done to mark it as 'to-do'
+//           const depTask = tasks.find(task => task.id === depId); 
+//           return depTask?.status === 'done'; 
+//         });
+//         dependentTask.status = allDepsDone ? 'todo' : 'blocked'; //true? 'to-do', false? 'blocked'
+//       }
+//     }
+//   }
 
-    //scan for any tasks in the tasks array...
-    for(const dependentTask of tasks){
-      if(dependentTask.dependencies.includes(task.id)){ //with a dependency to this task (relies on updated tasks)
-        const allDepsDone = dependentTask.dependencies.every(depId => { //checks to see if all dependent tasks are done to mark it as 'to-do'
-          const depTask = tasks.find(task => task.id === depId); 
-          return depTask?.status === 'done'; 
-        });
-        dependentTask.status = allDepsDone ? 'todo' : 'blocked'; //true? 'to-do', false? 'blocked'
-      }
-    }
-  }
+//   //scans for any tasks in the tasks array with a dependency to this task, if the new status is not 'done', mark it all dependents as 'blocked'.
+//   if(taskStatus != 'done'){
+//     for(const dependentTask of tasks){
+//       if(dependentTask.dependencies.includes(task.id)){
+//         dependentTask.status = 'blocked'
+//       }
+//     }
+//   }
 
-  //scans for any tasks in the tasks array with a dependency to this task, if the new status is not 'done', mark it all dependents as 'blocked'.
-  if(taskStatus != 'done'){
-    for(const dependentTask of tasks){
-      if(dependentTask.dependencies.includes(task.id)){
-        dependentTask.status = 'blocked'
-      }
-    }
-  }
+//   // TODO, update the backend with the new status
+//   // TODO, update the frontend with the new status
+// }
 
-  // TODO, update the backend with the new status
-  // TODO, update the frontend with the new status
-}
+
+//Mounting, following best practice learnt from internship
+onMounted(() => {
+  fetchTasks()
+})
 
 </script>
 

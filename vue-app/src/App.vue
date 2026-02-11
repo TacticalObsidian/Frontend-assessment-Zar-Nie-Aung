@@ -45,9 +45,6 @@
           <!-- Condition to remove the dropbox on task.status === 'blocked' -->
           <span v-if="task.state === 'BLOCKED'"> Blocked </span>
           </span>
-          
-          <!-- TODO, add a kanban style dialog popup for edit -->
-          <span> More </span>
         </li>
       </ul>
     </div>

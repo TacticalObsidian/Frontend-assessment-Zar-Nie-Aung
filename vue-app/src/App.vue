@@ -23,7 +23,7 @@
     <div>
       <!-- Task List -->
       <ul class="task-list">
-        <li class="task-item" v-for="(task, index) in tasks"
+        <li class="task-item" v-for="(task, index) in tasksAPI"
           :key="task.id"
           :class="index % 2 === 0 ? 'even' : 'odd'">
           <!-- <span v-for="item in task" v-text="item"></span> -->
@@ -32,17 +32,17 @@
           <span v-text="task.title"></span>
 
           <!-- dropbox for user to change progress state. hidden on blocked -->
-          <select 
-          v-model="task.status" 
-          :disabled="task.status === 'blocked'"
-          @change="onStatusChange($event, task)">
-            <option value="todo">To-do</option>
-            <option value="in_progress">In-progress</option>
-            <option value="done">Done</option>
+          <select
+            v-model = task.state
+            @change="updateTaskStatus(task.id, $event)"
+            >
+            <option value="TODO">To-do</option>
+            <option value="IN_PROGRESS">In-progress</option>
+            <option value="DONE">Done</option>
           </select>
 
           <!-- Condition to remove the dropbox on task.status === 'blocked' -->
-          <span v-if="task.status === 'blocked'"> Blocked </span>
+          <span v-if="task.state === 'BLOCKED'"> Blocked </span>
           </span>
           
           <!-- TODO, add a kanban style dialog popup for edit -->
@@ -87,11 +87,12 @@ export type Task2 = {
   'dependents': []
 }
 
+// GET tasks from task list
 async function fetchTasks() {
   try {
     const response = await fetch('http://localhost:8000/tasks')
     const data = await response.json()
-    tasks.splice(0, tasks.length, ...data) //replace the tasks array with the fetched data
+    tasksAPI.splice(0, tasksAPI.length, ...data) //replace the tasks array with the fetched data
   }
   catch (error) {
     console.error('Error fetching tasks:', error);
@@ -101,6 +102,22 @@ async function fetchTasks() {
 onMounted(() => {
   fetchTasks()
 })
+
+// PATCH (edit) task status
+async function updateTaskStatus(taskID: number, taskState: Event){
+  const stringifiedTaskStatus = (taskState.target as HTMLSelectElement).value as string
+  await fetch(`http://localhost:8000/tasks/${taskID}/state/${stringifiedTaskStatus}`, 
+  {
+    method: 'POST'
+  }
+  ) 
+}
+
+// RECURSIVE PATCH (edit) dependent task status to blocked or todo
+
+// Filter GET Tasks by Task.State
+
+const tasksAPI = reactive<Task2[]>([])
 
 const tasks = reactive<Task[]> ([
   { id: '1', title: 'Task A', status: 'blocked', dependencies: ['2', '3', '4'] },

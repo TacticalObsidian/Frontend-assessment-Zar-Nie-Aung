@@ -55,7 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue' //reflects changes across the object 'Tasks'.
+import { reactive, onMounted } from 'vue' //reflects changes across the object 'Tasks'.
+
+// fetch the tasks
 
 // task statuses
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
@@ -71,6 +73,34 @@ export type Task = {
     //'updated_at': Date,
     'dependencies': String[] // array of tasks this task depends on. If any of the dependencies are not done, this task is blocked.
 }
+
+export type Task2 = {
+  'title': string,
+  'description': string,
+  'due_date': string,
+  'id': number,
+  'state': string,
+  'completed_at': string,
+  'created_at': string,
+  'updated_at': string,
+  'blockers': [],
+  'dependents': []
+}
+
+async function fetchTasks() {
+  try {
+    const response = await fetch('http://localhost:8000/tasks')
+    const data = await response.json()
+    tasks.splice(0, tasks.length, ...data) //replace the tasks array with the fetched data
+  }
+  catch (error) {
+    console.error('Error fetching tasks:', error);
+  }
+}
+
+onMounted(() => {
+  fetchTasks()
+})
 
 const tasks = reactive<Task[]> ([
   { id: '1', title: 'Task A', status: 'blocked', dependencies: ['2', '3', '4'] },

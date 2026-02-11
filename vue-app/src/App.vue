@@ -20,15 +20,20 @@
           </h3>
         </div>
         <div>
-          {{ tasksAPI.length }} Tasks
+          {{ tasks.length }} Tasks
         </div>
       </span>
       <!-- Action Options -->
-      <!-- Create and Filter -->
+      <!-- Filter -->
       <span> 
-        <button> Create Task </button>
-        <select v-model="selectedFilter" @change="filterTasks(selectedFilter)"> Filter
-          <option value="" @click="filterTasks(null)"> Remove Filter </option>
+        <span>
+          Filter by Status:
+        </span>
+        <select 
+        name="task-filter"
+        v-model="selectedFilter"
+        @change="filterTasks(selectedFilter)"> Filter
+          <option value="" @click="filterTasks(null)"> All </option>
           <option value="BLOCKED" @click="filterTasks('BLOCKED')"> Blocked </option>
           <option value="TODO" @click="filterTasks('TODO')"> Todo </option>
           <option value="IN_PROGRESS" @click="filterTasks('IN_PROGRESS')"> In Progress </option>
@@ -40,7 +45,7 @@
         <!-- Task List -->
     <div>
       <ul class="task-list">
-        <li class="task-item" v-for="(task, index) in filteredTasks"
+        <li class="task-item scale-out-and-shadow" v-for="(task, index) in filteredTasks"
           :key="task.id"
           :class="index % 2 === 0 ? 'even' : 'odd'">
           <!-- <span v-for="item in task" v-text="item"></span> -->
@@ -48,19 +53,34 @@
           <span>
           <span v-text="task.title" class="task-title"></span>
 
+          <span> 
           <!-- dropbox for user to change progress state. hidden on blocked -->
-          <select
-            v-model = task.state
-            @change="updateTaskStatus(task)"
-            :disabled="task.state === 'BLOCKED'"
-            >
-            <option value="TODO">To-do</option>
-            <option value="IN_PROGRESS">In-progress</option>
-            <option value="DONE">Done</option>
-          </select>
+            <span>
+              <span>
+                Task Status: 
+              </span>
 
-          <!-- Condition to remove the dropbox on task.status === 'blocked' -->
-          <span v-if="task.state === 'BLOCKED'"> Blocked </span>
+              <select
+                name = "task-state-updater"
+                v-model = task.state
+                @change="updateTaskStatus(task)"
+                :hidden="task.state === 'BLOCKED'"
+                >
+                <option value="TODO">To-do</option>
+                <option value="IN_PROGRESS">In-progress</option>
+                <option value="DONE">Done</option>
+              </select>
+
+              <!-- Condition to remove the dropbox on task.status === 'blocked' -->
+              <span v-if="task.state === 'BLOCKED'"> Blocked </span>
+            </span>
+
+            <span class="task-buttons">
+              <button class="edit-btn scale-out-and-shadow darken-on-hover"> Edit Task </button>
+              <button class="delete-btn scale-out-and-shadow darken-on-hover"> Delete Task </button>
+            </span>
+
+            </span>
           </span>
         </li>
       </ul>
@@ -72,7 +92,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from 'vue' //reflects changes across the object 'Tasks'.
 
-export type Task2 = {
+export type Task = {
   'title': string,
   'description': string,
   'due_date': string,
@@ -89,7 +109,7 @@ export type Task2 = {
 async function fetchTasks(): Promise<void> {
   try {
     const response : Response = await fetch('http://localhost:8000/tasks')
-    tasksAPI.splice(0, tasksAPI.length, ...await response.json()) //replace the tasks array with the fetched data
+    tasks.splice(0, tasks.length, ...await response.json()) //replace the tasks array with the fetched data
   }
   catch (error) {
     console.error('Error fetching tasks:', error);
@@ -102,9 +122,9 @@ async function fetchTasks(): Promise<void> {
 // Subject to resturcturing for better maintaianability and readability
 const selectedFilter = ref<string | null>(null)
 const filteredTasks = computed(() => {
-  if (!selectedFilter.value) return tasksAPI
+  if (!selectedFilter.value) return tasks
 
-  return tasksAPI.filter(task => task.state === selectedFilter.value)
+  return tasks.filter(task => task.state === selectedFilter.value)
 })
 
 async function filterTasks(filter: string | null) : Promise<void> {
@@ -112,7 +132,7 @@ async function filterTasks(filter: string | null) : Promise<void> {
 }
 
 // PUSH (create) a task to the task list
-async function createTask(newTask: Task2): Promise<void> {
+async function createTask(newTask: Task): Promise<void> {
   try {
 
   }
@@ -122,7 +142,7 @@ async function createTask(newTask: Task2): Promise<void> {
 }
 
 // POST (edit) task status
-async function updateTaskStatus(task: Task2): Promise<void> {
+async function updateTaskStatus(task: Task): Promise<void> {
   // const stringifiedTaskStatus : string = (taskState.target as HTMLSelectElement).value
   await fetch(`http://localhost:8000/tasks/${task.id}/state/${task.state}`, 
   {
@@ -132,7 +152,7 @@ async function updateTaskStatus(task: Task2): Promise<void> {
   fetchTasks() //refresh the tasks list to reflect the updated status
 }
 
-const tasksAPI = reactive<Task2[]>([])
+const tasks = reactive<Task[]>([])
 
 //Mounting, following best practice learnt from internship
 onMounted(() => {
@@ -146,6 +166,19 @@ onMounted(() => {
   *{
     margin: 0px;
     padding: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  template{
+    background-color: rgb(200, 200, 200);
+  }
+
+  .action-panel{
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: rgb(0, 0, 0, 5%);
+    margin-top: 10px;
   }
 
   .task-list{
@@ -154,25 +187,53 @@ onMounted(() => {
 
   .task-item{
     padding:5px 0px 5px 0px;
-    display: flex;
-    justify-content: space-between;
   }
 
   .task-item:hover{
     background-color: rgb(255, 255, 255);
-    transform: scale(1.005);
-    border: black solid 1px;
     border-radius: 5px;
+  }
+
+  .scale-out-and-shadow:hover
+  {
+    transform: scale(1.005);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.25s ease-in;
+  }
+
+  .darken-on-hover:hover
+  {
+    filter: brightness(90%);
     transition: all 0.25s ease-in;
   }
 
   .task-item span {
-    padding: 10px;
+    padding: 3px 10px;
+    justify-content: space-between;
+    display: flex;
   }
 
   .task-title{
     font-weight: 800;
     width: 300px;
+  }
+
+  .task-buttons button{
+    margin-left: 5px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    color: rgb(250, 250, 250);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .task-buttons .edit-btn{
+      background-color: rgb(0, 150, 100);
+  }
+
+  .task-buttons .delete-btn{
+      background-color: rgb(180, 0, 0);
   }
 
   .even {
@@ -207,26 +268,6 @@ onMounted(() => {
     border-radius: 5px;
     display: flex;
     justify-content: center;
-  }
-
-  #filter-blocked {
-    background-image: linear-gradient(red, rgb(100, 0, 0));
-    color: white;
-  }
-
-  #filter-todo {
-    background-image: linear-gradient(rgb(0, 123, 255), rgb(0, 83, 125));
-    color: white;
-  }
-
-  #filter-in_progress {
-    background-image: linear-gradient(rgb(123, 0, 255), rgb(83, 0, 125));
-    color: white;
-  }
-
-  #filter-done {
-    background-image: linear-gradient(rgb(0, 255, 0), rgb(0, 100, 0));
-    color: white;
   }
 
 </style>

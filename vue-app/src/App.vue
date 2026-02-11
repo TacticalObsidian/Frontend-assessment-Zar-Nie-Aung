@@ -13,7 +13,7 @@
     <div class="filter-panel">
       <span> Filter: </span>
       <span class="filter-option-wrapper">
-        <span id="filter-blocked" @click="filterBlocked"> Blocked </span>
+        <span id="filter-blocked"> Blocked </span>
         <span id="filter-todo"> Todo </span>
         <span id="filter-in_progress"> In Progress </span>
         <span id="filter-done"> Done </span>
@@ -59,10 +59,7 @@ import { reactive } from 'vue' //reflects changes across the object 'Tasks'.
 
 // task statuses
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked'
-// 'todo' - task is not started yet
-// 'in_progress' - task is currently being worked on
-// 'done' - task is completed
-// 'blocked' - task is blocked by another task and cannot be started until the blocking task is completed. Is automatically derived.
+
 
 // task body
 export type Task = {
@@ -114,17 +111,6 @@ function onStatusChange(event: Event, task: Task): void {
   // TODO, update the backend with the new status
   // TODO, update the frontend with the new status
 }
-
-
-/*
-function recursiveRead(task: Task): void {
-  if (task.status != "done") 
-    for (const dependent in task.dependents)
-
-}
-*/
-
-function filterBlocked(): void{}
 
 </script>
 

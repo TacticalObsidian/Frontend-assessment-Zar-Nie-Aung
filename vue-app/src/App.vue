@@ -58,10 +58,39 @@
           <!-- <span v-for="item in task" v-text="item"></span> -->
 
           <span>
-          <span v-text="task.title" class="task-title"></span>
+            <div class="task-header">
+              <div v-text="task.id" class="task-id"></div>
+              <span v-text="task.title" class="task-title"></span>
+            
+              <!-- blocker list -->
+            <div 
+            class="task-blocker"> 
 
-          <span> 
-          <!-- dropbox for user to change progress state. hidden on blocked -->
+              <span>
+                Blockers: 
+              </span>
+
+              <span v-if="task.blockers.length > 0">
+                <ul class="blocker-list">
+                  <li 
+                  v-for="blocker in task.blockers" 
+                  :key="blocker"
+                  class="blocker-id">
+                    {{ blocker }}
+                  </li>
+                </ul>
+              </span>
+
+            <span v-else class="blocker-id no-blockers"> 
+              No Blockers
+            </span>
+
+            </div>
+            
+            </div>
+
+            <span> 
+            <!-- dropbox for user to change progress state. hidden on blocked -->
               <span class="task-state-wrapper">
                 <span class="task-state-label">
                   Task Status: 
@@ -84,10 +113,10 @@
                 <span 
                 v-if="task.state === 'BLOCKED'"
                 class="task-state task-state--blocked"> 
-                <div>
-                  Blocked
-                </div>
-                  </span>
+                  <div>
+                    Blocked
+                  </div>
+                </span>
               </span>
             </span>
           </span>
@@ -174,8 +203,35 @@ onMounted(() => {
     background-color: rgb(0, 0, 0, 5%);
   }
 
-  .task-list{
+  .task-list, .blocker-list{
     list-style-type: none;
+  }
+
+  .task-blocker{
+    display: flex;
+    justify-content: left;
+    width: 300px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .blocker-list{
+    height: 30px;
+    display: flex;
+    gap: 5px;
+  }
+
+  .blocker-id{
+    display: flex;
+    align-items: center;
+    height: 30px;
+    padding: 0px 10px;
+    border-radius: 5px;
+    background-color: rgb(0, 0, 0, 10%);
+  }
+
+  .no-blockers{
+    background-color: rgb(0, 255, 0, 50%);
   }
 
   .task-item{
@@ -191,6 +247,15 @@ onMounted(() => {
     gap: 10px;
     align-items: center;
     height: 30px;
+  }
+
+  .blocker-task{
+    width: 10px;
+    height: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    justify-content: center;
+    align-items: center;
   }
 
   .task-state{
@@ -238,9 +303,26 @@ onMounted(() => {
     display: flex;
   }
 
+  .task-header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .task-id{
+    display: flex;
+    height: 30px;
+    width: 30px;
+    border-radius: 5px;
+    background-color: rgb(0, 0, 0, 20%);
+    justify-content: center;
+    align-items: center;
+  }
+
   .task-title{
     font-weight: 800;
-    width: 300px;
+    width: 180px;
   }
 
   .even {

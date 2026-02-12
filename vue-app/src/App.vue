@@ -143,16 +143,6 @@ async function filterTasks(filter: string | null) : Promise<void> {
   selectedFilter.value = filter
 }
 
-// PUSH (create) a task to the task list
-async function createTask(newTask: Task): Promise<void> {
-  try {
-
-  }
-  catch (error) {
-    console.error('Error creating task:', error);
-  }
-}
-
 // POST (edit) task status
 async function updateTaskStatus(task: Task): Promise<void> {
   // const stringifiedTaskStatus : string = (taskState.target as HTMLSelectElement).value

@@ -34,10 +34,10 @@
         v-model="selectedFilter"
         class="task-state"
         :class="{
-          'state-todo': selectedFilter === 'TODO',
-          'state-progress': selectedFilter === 'IN_PROGRESS',
-          'state-done': selectedFilter === 'DONE',
-          'state-blocked': selectedFilter === 'BLOCKED'
+          'task-state--todo': selectedFilter === 'TODO',
+          'task-state--in_progress': selectedFilter === 'IN_PROGRESS',
+          'task-state--done': selectedFilter === 'DONE',
+          'task-state--blocked': selectedFilter === 'BLOCKED'
         }"
         @change="filterTasks(selectedFilter)"> Filter
           <option value="" @click="filterTasks(null)"> All </option>
@@ -63,7 +63,7 @@
           <span> 
           <!-- dropbox for user to change progress state. hidden on blocked -->
               <span class="task-state-wrapper">
-                <span>
+                <span class="task-state-label">
                   Task Status: 
                 </span>
 
@@ -73,11 +73,7 @@
                   @change="updateTaskStatus(task)"
                   :hidden="task.state === 'BLOCKED'"
                   class="task-state"
-                  :class="{
-                    'state-todo': task.state === 'TODO',
-                    'state-progress': task.state === 'IN_PROGRESS',
-                    'state-done': task.state === 'DONE'
-                  }"
+                  :class="['task-state', `task-state--${task.state.toLowerCase()}`]"
                   >
                   <option class="task-state state-todo" value="TODO">To-do</option>
                   <option class="task-state state-progress" value="IN_PROGRESS">In-progress</option>
@@ -87,10 +83,10 @@
                 <!-- Condition to remove the dropbox on task.status === 'blocked' -->
                 <span 
                 v-if="task.state === 'BLOCKED'"
-                class="task-state"> 
-                    <div class="state-blocked">
-                      Blocked
-                    </div>
+                class="task-state task-state--blocked"> 
+                <div>
+                  Blocked
+                </div>
                   </span>
               </span>
             </span>
@@ -164,7 +160,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
   *{
     margin: 0px;
     padding: 0px;
@@ -181,7 +176,6 @@ onMounted(() => {
     align-items: center;
     padding: 15px;
     background-color: rgb(0, 0, 0, 5%);
-    margin-top: 10px;
   }
 
   .task-list{
@@ -197,56 +191,49 @@ onMounted(() => {
     border-radius: 5px;
   }
 
-  .scale-out-and-shadow:hover
-  {
-    transform: scale(1.005);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.25s ease-in;
-  }
-
   .task-state-wrapper{
     gap: 10px;
     align-items: center;
     height: 30px;
   }
 
-  .state-blocked{
-    font-weight: 700;
-    color: rgb(120, 0, 0);
-    width: 100%;
-    background-color: rgb(180, 0, 0, 20%);
-    padding: 5px;
-  }
-
   .task-state{
     width: 100px;
     font-size: 14px;
     font-weight: 700;
-    height: 100%;
+    height: 30px;
     border-radius: 2.5px;
     background-color: rgb(0, 0, 0, 10%);
     border: 0px;
     align-items: center;
   }
 
-  .state-todo{
+  .task-state--todo{
     background-color: rgb(200, 200, 0, 20%);
     color: rgb(120, 120, 0);
   }
-
-  .state-progress{
+  
+  .task-state--in_progress{
     background-color: rgb(0, 200, 200, 20%);
     color: rgb(0, 120, 120);
   }
 
-  .state-done{
+  .task-state--done{
     background-color: rgb(0, 200, 0, 20%);
     color: rgb(0, 120, 0);
   }
 
-  .darken-on-hover:hover
+  .task-state--blocked{
+    color: rgb(120, 0, 0);
+    width: 95px;
+    background-color: rgb(180, 0, 0, 20%);
+    padding-left: 5px;
+  }
+
+  .scale-out-and-shadow:hover
   {
-    filter: brightness(90%);
+    transform: scale(1.005);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     transition: all 0.25s ease-in;
   }
 
@@ -258,16 +245,6 @@ onMounted(() => {
   .task-title{
     font-weight: 800;
     width: 300px;
-  }
-
-  .task-buttons button{
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: none;
-    color: rgb(250, 250, 250);
-    font-weight: 700;
-    cursor: pointer;
-    height: 100%;
   }
 
   .even {
@@ -283,25 +260,4 @@ onMounted(() => {
     padding: 15px;
     color: rgb(250, 250, 200);
   }
-
-  .filter-panel{
-    padding: 15px;
-    background-color: rgb(0, 0, 0, 5%);
-  }
-
-  .filter-option-wrapper{
-    display: flex;
-    gap: 10px;
-  }
-
-  .filter-option-wrapper span{
-    padding: 2.5px 5px;
-    width: 80px;
-    height: 20px;
-    font-weight: 700;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-  }
-
 </style>

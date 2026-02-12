@@ -32,6 +32,13 @@
         <select 
         name="task-filter"
         v-model="selectedFilter"
+        class="task-state"
+        :class="{
+          'state-todo': selectedFilter === 'TODO',
+          'state-progress': selectedFilter === 'IN_PROGRESS',
+          'state-done': selectedFilter === 'DONE',
+          'state-blocked': selectedFilter === 'BLOCKED'
+        }"
         @change="filterTasks(selectedFilter)"> Filter
           <option value="" @click="filterTasks(null)"> All </option>
           <option value="BLOCKED" @click="filterTasks('BLOCKED')"> Blocked </option>
@@ -66,17 +73,22 @@
                   @change="updateTaskStatus(task)"
                   :hidden="task.state === 'BLOCKED'"
                   class="task-state"
+                  :class="{
+                    'state-todo': task.state === 'TODO',
+                    'state-progress': task.state === 'IN_PROGRESS',
+                    'state-done': task.state === 'DONE'
+                  }"
                   >
-                  <option value="TODO">To-do</option>
-                  <option value="IN_PROGRESS">In-progress</option>
-                  <option value="DONE">Done</option>
+                  <option class="task-state state-todo" value="TODO">To-do</option>
+                  <option class="task-state state-progress" value="IN_PROGRESS">In-progress</option>
+                  <option class="task-state state-done" value="DONE">Done</option>
                 </select>
 
                 <!-- Condition to remove the dropbox on task.status === 'blocked' -->
                 <span 
                 v-if="task.state === 'BLOCKED'"
                 class="task-state"> 
-                    <div class="task-state-blocked-wrapper">
+                    <div class="state-blocked">
                       Blocked
                     </div>
                   </span>
@@ -208,7 +220,7 @@ onMounted(() => {
     height: 30px;
   }
 
-  .task-state-blocked-wrapper{
+  .state-blocked{
     font-weight: 700;
     color: rgb(120, 0, 0);
     width: 100%;
@@ -219,11 +231,27 @@ onMounted(() => {
   .task-state{
     width: 100px;
     font-size: 14px;
+    font-weight: 700;
     height: 100%;
     border-radius: 2.5px;
     background-color: rgb(0, 0, 0, 10%);
     border: 0px;
     align-items: center;
+  }
+
+  .state-todo{
+    background-color: rgb(200, 200, 0, 20%);
+    color: rgb(120, 120, 0);
+  }
+
+  .state-progress{
+    background-color: rgb(0, 200, 200, 20%);
+    color: rgb(0, 120, 120);
+  }
+
+  .state-done{
+    background-color: rgb(0, 200, 0, 20%);
+    color: rgb(0, 120, 0);
   }
 
   .darken-on-hover:hover

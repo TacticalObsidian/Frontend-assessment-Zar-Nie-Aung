@@ -55,31 +55,32 @@
 
           <span> 
           <!-- dropbox for user to change progress state. hidden on blocked -->
-            <span>
-              <span>
-                Task Status: 
+              <span class="task-state-wrapper">
+                <span>
+                  Task Status: 
+                </span>
+
+                <select
+                  name = "task-state-updater"
+                  v-model = task.state
+                  @change="updateTaskStatus(task)"
+                  :hidden="task.state === 'BLOCKED'"
+                  class="task-state"
+                  >
+                  <option value="TODO">To-do</option>
+                  <option value="IN_PROGRESS">In-progress</option>
+                  <option value="DONE">Done</option>
+                </select>
+
+                <!-- Condition to remove the dropbox on task.status === 'blocked' -->
+                <span 
+                v-if="task.state === 'BLOCKED'"
+                class="task-state"> 
+                    <div class="task-state-blocked-wrapper">
+                      Blocked
+                    </div>
+                  </span>
               </span>
-
-              <select
-                name = "task-state-updater"
-                v-model = task.state
-                @change="updateTaskStatus(task)"
-                :hidden="task.state === 'BLOCKED'"
-                >
-                <option value="TODO">To-do</option>
-                <option value="IN_PROGRESS">In-progress</option>
-                <option value="DONE">Done</option>
-              </select>
-
-              <!-- Condition to remove the dropbox on task.status === 'blocked' -->
-              <span v-if="task.state === 'BLOCKED'"> Blocked </span>
-            </span>
-
-            <span class="task-buttons">
-              <button class="edit-btn scale-out-and-shadow darken-on-hover"> Edit Task </button>
-              <button class="delete-btn scale-out-and-shadow darken-on-hover"> Delete Task </button>
-            </span>
-
             </span>
           </span>
         </li>
@@ -119,7 +120,6 @@ async function fetchTasks(): Promise<void> {
 // FILTER the tasks from task list
 // For future documentation purposes:
 // Requires computed, ref, + a new referential list to store tasks and allowed for dynamic filtering.
-// Subject to resturcturing for better maintaianability and readability
 const selectedFilter = ref<string | null>(null)
 const filteredTasks = computed(() => {
   if (!selectedFilter.value) return tasks
@@ -176,6 +176,7 @@ onMounted(() => {
   .action-panel{
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px;
     background-color: rgb(0, 0, 0, 5%);
     margin-top: 10px;
@@ -186,7 +187,7 @@ onMounted(() => {
   }
 
   .task-item{
-    padding:5px 0px 5px 0px;
+    padding: 15px;
   }
 
   .task-item:hover{
@@ -201,6 +202,30 @@ onMounted(() => {
     transition: all 0.25s ease-in;
   }
 
+  .task-state-wrapper{
+    gap: 10px;
+    align-items: center;
+    height: 30px;
+  }
+
+  .task-state-blocked-wrapper{
+    font-weight: 700;
+    color: rgb(120, 0, 0);
+    width: 100%;
+    background-color: rgb(180, 0, 0, 20%);
+    padding: 5px;
+  }
+
+  .task-state{
+    width: 100px;
+    font-size: 14px;
+    height: 100%;
+    border-radius: 2.5px;
+    background-color: rgb(0, 0, 0, 10%);
+    border: 0px;
+    align-items: center;
+  }
+
   .darken-on-hover:hover
   {
     filter: brightness(90%);
@@ -208,7 +233,6 @@ onMounted(() => {
   }
 
   .task-item span {
-    padding: 3px 10px;
     justify-content: space-between;
     display: flex;
   }
@@ -219,21 +243,13 @@ onMounted(() => {
   }
 
   .task-buttons button{
-    margin-left: 5px;
     padding: 5px 10px;
     border-radius: 5px;
     border: none;
     color: rgb(250, 250, 250);
     font-weight: 700;
     cursor: pointer;
-  }
-
-  .task-buttons .edit-btn{
-      background-color: rgb(0, 150, 100);
-  }
-
-  .task-buttons .delete-btn{
-      background-color: rgb(180, 0, 0);
+    height: 100%;
   }
 
   .even {

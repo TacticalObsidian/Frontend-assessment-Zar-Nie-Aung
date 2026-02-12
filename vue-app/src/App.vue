@@ -39,12 +39,12 @@
           'task-state--done': selectedFilter === 'DONE',
           'task-state--blocked': selectedFilter === 'BLOCKED'
         }"
-        @change="filterTasks(selectedFilter)"> Filter
-          <option value="" @click="filterTasks(null)"> All </option>
-          <option value="BLOCKED" @click="filterTasks('BLOCKED')"> Blocked </option>
-          <option value="TODO" @click="filterTasks('TODO')"> Todo </option>
-          <option value="IN_PROGRESS" @click="filterTasks('IN_PROGRESS')"> In Progress </option>
-          <option value="DONE" @click="filterTasks('DONE')"> Done </option>
+        > Filter
+          <option value=""> All </option>
+          <option value="BLOCKED"> Blocked </option>
+          <option value="TODO"> Todo </option>
+          <option value="IN_PROGRESS"> In Progress </option>
+          <option value="DONE"> Done </option>
         </select> 
       </span>
    </div>
@@ -128,16 +128,12 @@ async function fetchTasks(): Promise<void> {
 // FILTER the tasks from task list
 // For future documentation purposes:
 // Requires computed, ref, + a new referential list to store tasks and allowed for dynamic filtering.
-const selectedFilter = ref<string | null>(null)
+const selectedFilter = ref<string>("")
 const filteredTasks = computed(() => {
   if (!selectedFilter.value) return tasks
 
   return tasks.filter(task => task.state === selectedFilter.value)
 })
-
-async function filterTasks(filter: string | null) : Promise<void> {
-  selectedFilter.value = filter
-}
 
 // POST (edit) task status
 async function updateTaskStatus(task: Task): Promise<void> {
